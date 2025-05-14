@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // <-- Import shadcn Card components
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const PHASES = ["breathe-in", "hold-in", "breathe-out", "hold-out"] as const;
 type Phase = (typeof PHASES)[number];
@@ -21,10 +21,12 @@ export default function BreathingPlayer() {
   const [currentPhase, setCurrentPhase] = useState<Phase | null>(null);
   const [volume, setVolume] = useState(1);
   const volumeRef = useRef(volume);
-
   const [isPlaying, setIsPlaying] = useState(false);
+
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const phaseIndexRef = useRef(0);
+  const audioCacheRef = useRef<Record<string, HTMLAudioElement>>({});
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const getAudioUrl = (phase: Phase, duration: number) => {
     const actualPhase =
@@ -32,23 +34,45 @@ export default function BreathingPlayer() {
     return `/audio/${actualPhase}-${duration}.mp3`;
   };
 
+  const preloadAudios = () => {
+    const newCache: Record<string, HTMLAudioElement> = {};
+    PHASES.forEach((phase) => {
+      const duration = durations[phase];
+      const url = getAudioUrl(phase, duration);
+      const audio = new Audio(url);
+      audio.preload = "auto";
+      newCache[`${phase}-${duration}`] = audio;
+    });
+    audioCacheRef.current = newCache;
+  };
+
   const playNextPhase = () => {
     const phase = PHASES[phaseIndexRef.current];
     const duration = durations[phase];
-    const audio = new Audio(getAudioUrl(phase, duration));
+    const key = `${phase}-${duration}`;
+    const cachedAudio = audioCacheRef.current[key];
+
+    if (!cachedAudio) {
+      console.error("Audio non trovato nella cache:", key);
+      return;
+    }
+
+    const audio = cachedAudio.cloneNode(true) as HTMLAudioElement;
     audio.volume = volumeRef.current;
+    audio.currentTime = 0;
+
     currentAudioRef.current = audio;
-
     setCurrentPhase(phase);
-
-    audio.onended = () => {
-      phaseIndexRef.current = (phaseIndexRef.current + 1) % PHASES.length;
-      playNextPhase();
-    };
 
     audio.play().catch((err) => {
       console.error("Errore durante la riproduzione audio:", err);
     });
+
+    // Imposta un timeout per passare alla prossima fase
+    timeoutRef.current = setTimeout(() => {
+      phaseIndexRef.current = (phaseIndexRef.current + 1) % PHASES.length;
+      playNextPhase();
+    }, duration * 1000);
   };
 
   useEffect(() => {
@@ -60,6 +84,7 @@ export default function BreathingPlayer() {
 
   const start = () => {
     if (isPlaying) return;
+    preloadAudios();
     setIsPlaying(true);
     phaseIndexRef.current = 0;
     playNextPhase();
@@ -70,18 +95,19 @@ export default function BreathingPlayer() {
     currentAudioRef.current?.pause();
     currentAudioRef.current = null;
     setCurrentPhase(null);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
   };
 
   const getScaleForPhase = (phase: Phase | null) => {
     switch (phase) {
       case "breathe-in":
-        return 1.5;
       case "hold-in":
         return 1.5;
       case "breathe-out":
-        return 1;
       case "hold-out":
-        return 1;
       default:
         return 1;
     }
@@ -94,7 +120,6 @@ export default function BreathingPlayer() {
       </CardHeader>
       <CardContent>
         <div className="space-y-6 flex flex-col items-center">
-          {/* Controls */}
           <div className="grid grid-cols-2 gap-6 w-full max-w-md">
             {PHASES.map((phase) => (
               <div key={phase} className="space-y-2">
@@ -107,19 +132,21 @@ export default function BreathingPlayer() {
                   max={10}
                   value={durations[phase]}
                   onChange={(e) =>
-                    setDurations((prev) => ({
-                      ...prev,
-                      [phase]: Math.min(
-                        10,
-                        Math.max(1, Number(e.target.value))
-                      ),
-                    }))
+                    setDurations((prev) => {
+                      const updated = {
+                        ...prev,
+                        [phase]: Math.min(
+                          10,
+                          Math.max(1, Number(e.target.value))
+                        ),
+                      };
+                      return updated;
+                    })
                   }
                 />
               </div>
             ))}
 
-            {/* Volume control */}
             <div className="space-y-2 col-span-1">
               <label className="block text-sm font-medium">Volume</label>
               <Slider
@@ -131,7 +158,6 @@ export default function BreathingPlayer() {
               />
             </div>
 
-            {/* Play/Stop single toggle button */}
             <div className="flex items-end">
               <Button
                 onClick={isPlaying ? stop : start}
@@ -143,7 +169,6 @@ export default function BreathingPlayer() {
             </div>
           </div>
 
-          {/* Animated Ball */}
           <div className="relative h-60 flex items-center justify-center">
             <motion.div
               className="rounded-full bg-primary w-40 h-40"
