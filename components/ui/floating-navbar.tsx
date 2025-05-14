@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import ColoredBorderButton from "../ColoredBorderButton";
 import Link from "next/link";
 import Image from "next/image";
+import { useMediaQuery } from "react-responsive";
 
 export const FloatingNav = ({
   navItems,
@@ -23,6 +24,7 @@ export const FloatingNav = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -72,12 +74,12 @@ export const FloatingNav = ({
         animate={{ width: expanded ? "auto" : 52 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className={cn(
-          "overflow-hidden flex items-center rounded-full border dark:border-white/[0.2] dark:bg-black bg-white shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1)] px-2 py-2 space-x-4 cursor-pointer whitespace-nowrap",
+          "min-w-[52px] overflow-hidden flex items-center rounded-full border dark:border-white/[0.2] dark:bg-black bg-white shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1)] px-2 py-2 space-x-4 cursor-pointer whitespace-nowrap",
           !expanded && "!py-0 !px-0 !border-0"
         )}
         onClick={() => setExpanded((prev) => !prev)}
-        onMouseEnter={() => setExpanded(true)}
-        onMouseLeave={() => setExpanded(false)}
+        onMouseEnter={!isMobile ? () => setExpanded(true) : undefined}
+        onMouseLeave={!isMobile ? () => setExpanded(false) : undefined}
       >
         <AnimatePresence>
           {expanded && (
@@ -88,6 +90,7 @@ export const FloatingNav = ({
               transition={{ duration: 0.2, delay: 0.1 }}
               className="flex items-center space-x-4 whitespace-nowrap"
             >
+              {ctaContent}
               {navItems.map((navItem, idx) => (
                 <Link
                   key={`link-${idx}`}
@@ -100,7 +103,6 @@ export const FloatingNav = ({
                   </span>
                 </Link>
               ))}
-              {ctaContent}
             </motion.div>
           )}
         </AnimatePresence>
@@ -110,13 +112,13 @@ export const FloatingNav = ({
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.2 }}
-            className="w-[44px] h-[52px] rounded-full overflow-hidden flex items-center justify-center mx-auto"
+            className="w-[52px] h-[52px] rounded-full overflow-hidden flex items-center justify-center mx-auto"
           >
             <Image
               src="/garden-of-gethsemane.png"
               alt="Garden Icon"
-              width={44}
-              height={52}
+              width={35}
+              height={35}
               className="rounded-full"
             />
           </motion.div>
