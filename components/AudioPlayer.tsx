@@ -99,7 +99,7 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
 
     return (
       <Card
-        className={`block shrink-0 min-w-xs transition-opacity duration-300 ${
+        className={`block shrink-0 min-w-xs md:min-w-md transition-opacity duration-300 ${
           enabled ? "" : "opacity-50"
         }`}
       >

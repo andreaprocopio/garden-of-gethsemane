@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // <-- Import shadcn Card components
 
 const PHASES = ["breathe-in", "hold-in", "breathe-out", "hold-out"] as const;
 type Phase = (typeof PHASES)[number];
@@ -87,69 +88,79 @@ export default function BreathingPlayer() {
   };
 
   return (
-    <div className="space-y-6 flex flex-col items-center w-full">
-      {/* Animated Ball */}
-      <div className="relative h-60 flex items-center justify-center">
-        <motion.div
-          className="rounded-full bg-primary w-40 h-40"
-          animate={{ scale: getScaleForPhase(currentPhase) }}
-          transition={{
-            duration: durations[currentPhase as Phase] || 0.5,
-            ease: "easeInOut",
-          }}
-        />
-        {currentPhase && (
-          <div className="absolute text-white font-semibold text-xl capitalize">
-            {currentPhase.replace("-", " ")}
-          </div>
-        )}
-      </div>
+    <Card className="w-full max-w-xs md:w-fit md:min-w-md md:max-w-2xl px-4 py-8">
+      <CardHeader>
+        <CardTitle className="text-center">Guided Breathing</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6 flex flex-col items-center">
+          {/* Controls */}
+          <div className="grid grid-cols-2 gap-6 w-full max-w-md">
+            {PHASES.map((phase) => (
+              <div key={phase} className="space-y-2">
+                <label className="capitalize block text-sm font-medium">
+                  {phase.replace("-", " ")}
+                </label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={durations[phase]}
+                  onChange={(e) =>
+                    setDurations((prev) => ({
+                      ...prev,
+                      [phase]: Math.min(
+                        10,
+                        Math.max(1, Number(e.target.value))
+                      ),
+                    }))
+                  }
+                />
+              </div>
+            ))}
 
-      {/* Controls */}
-      <div className="grid grid-cols-2 gap-6 w-full max-w-md">
-        {PHASES.map((phase) => (
-          <div key={phase} className="space-y-2">
-            <label className="capitalize block text-sm font-medium">
-              {phase.replace("-", " ")}
-            </label>
-            <Input
-              type="number"
-              min={1}
-              max={10}
-              value={durations[phase]}
-              onChange={(e) =>
-                setDurations((prev) => ({
-                  ...prev,
-                  [phase]: Math.min(10, Math.max(1, Number(e.target.value))),
-                }))
-              }
+            {/* Volume control */}
+            <div className="space-y-2 col-span-1">
+              <label className="block text-sm font-medium">Volume</label>
+              <Slider
+                min={0}
+                max={1}
+                step={0.01}
+                value={[volume]}
+                onValueChange={(val) => setVolume(val[0])}
+              />
+            </div>
+
+            {/* Play/Stop single toggle button */}
+            <div className="flex items-end">
+              <Button
+                onClick={isPlaying ? stop : start}
+                variant={isPlaying ? "destructive" : "default"}
+                className="w-full"
+              >
+                {isPlaying ? "Stop" : "Start"}
+              </Button>
+            </div>
+          </div>
+
+          {/* Animated Ball */}
+          <div className="relative h-60 flex items-center justify-center">
+            <motion.div
+              className="rounded-full bg-primary w-40 h-40"
+              animate={{ scale: getScaleForPhase(currentPhase) }}
+              transition={{
+                duration: durations[currentPhase as Phase] || 0.5,
+                ease: "easeInOut",
+              }}
             />
+            {currentPhase && (
+              <div className="absolute text-white font-semibold text-xl capitalize">
+                {currentPhase.replace("-", " ")}
+              </div>
+            )}
           </div>
-        ))}
-
-        {/* Volume control */}
-        <div className="space-y-2 col-span-1">
-          <label className="block text-sm font-medium">Volume</label>
-          <Slider
-            min={0}
-            max={1}
-            step={0.01}
-            value={[volume]}
-            onValueChange={(val) => setVolume(val[0])}
-          />
         </div>
-
-        {/* Play/Stop single toggle button */}
-        <div className="flex items-end">
-          <Button
-            onClick={isPlaying ? stop : start}
-            variant={isPlaying ? "destructive" : "default"}
-            className="w-full"
-          >
-            {isPlaying ? "Stop" : "Start"}
-          </Button>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
