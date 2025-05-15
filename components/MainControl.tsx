@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import AudioPlayer, { AudioPlayerHandle } from "./AudioPlayer";
-import BreathingPlayer from "./BreathingPlayer";
+import BreathingPlayer, { BreathingPlayerHandle } from "./BreathingPlayer";
 
 const MainControl = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -10,23 +10,26 @@ const MainControl = () => {
   const playerRefs = [
     useRef<AudioPlayerHandle>(null),
     useRef<AudioPlayerHandle>(null),
+    useRef<AudioPlayerHandle>(null),
   ];
 
+  const breathingPlayerRef = useRef<BreathingPlayerHandle>(null);
+
   const toggleAllPlayback = () => {
-    const ready = playerRefs.every((ref) => ref.current !== null);
+    const allRefs = [...playerRefs, breathingPlayerRef];
+    const ready = allRefs.every((ref) => ref.current !== null);
     if (!ready) {
       console.warn("Audio players are not ready yet.");
       return;
     }
 
-    playerRefs.forEach((ref) => {
+    allRefs.forEach((ref) => {
       if (isPlaying) {
         ref.current?.pause();
       } else {
         ref.current?.play();
       }
     });
-
     setIsPlaying(!isPlaying);
   };
 
@@ -53,12 +56,12 @@ const MainControl = () => {
         />
 
         <AudioPlayer
-          ref={playerRefs[1]}
+          ref={playerRefs[2]}
           isPlaying={isPlaying}
           type="ambience-sounds"
         />
       </div>
-      <BreathingPlayer />
+      <BreathingPlayer ref={breathingPlayerRef} isPlaying={isPlaying} />
     </>
   );
 };

@@ -55,9 +55,16 @@ const audioOptionsMap = {
   "ambience-sounds": ambienceOptions,
 } as const;
 
+const cardTitleMap = {
+  "isochronic-tones": "Isochronic tones",
+  "brown-noise": "Brown noise",
+  "ambience-sounds": "Ambience sounds",
+} as const;
+
 const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
   ({ isPlaying, type }, ref) => {
     const options = audioOptionsMap[type];
+    const cardTitle = cardTitleMap[type];
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [volume, setVolume] = useState(1);
     const [src, setSrc] = useState(options[0].value);
@@ -103,17 +110,17 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
           enabled ? "" : "opacity-50"
         }`}
       >
-        <CardHeader>
-          <CardTitle>Audio Player</CardTitle>
+        <CardHeader className="flex items-center justify-between mb-6">
+          <CardTitle>{cardTitle}</CardTitle>
+          <Switch
+            checked={enabled}
+            onCheckedChange={setEnabled}
+            className="cursor-pointer"
+          />
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <span>Attivo</span>
-            <Switch checked={enabled} onCheckedChange={setEnabled} />
-          </div>
-
           <div>
-            <label className="text-sm mb-1 block">Scegli traccia</label>
+            <label className="text-sm mb-1 block">Tracks</label>
             <Select value={src} onValueChange={handleSrcChange}>
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -136,6 +143,7 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
               max={1}
               step={0.01}
               onValueChange={handleVolumeChange}
+              className="cursor-pointer"
             />
           </div>
 
