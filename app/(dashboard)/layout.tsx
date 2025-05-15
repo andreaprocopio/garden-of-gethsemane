@@ -8,7 +8,7 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
-    <HeroHighlight>
+    <HeroHighlight className="relative">
       <div className="min-h-screen z-10">
         <FloatingNavbar isLoggedIn={true} isLanding={false} />
         <div className="p-6 md:p-14 grow flex">{children}</div>

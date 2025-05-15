@@ -2,18 +2,12 @@ export type PresetValues = {
   volume: number;
   enabled: boolean;
   trackSrc?: string;
+  breathingPhasesValues?: BreathingPhasesValues
 }
 
-export type Preset = {
-  "isochronic-tones": PresetValues
-  "brown-noise": PresetValues
-  "ambience-sounds": PresetValues
-  "guided-breathing": PresetValues
+export type BreathingPhasesValues = {
+  breathe_in: number;
+  hold_in: number;
+  breathe_out: number;
+  hold_out: number;
 }
-
-export type DefaultPreset = {
-  name: string;
-  presetValues: Preset
-}
-
-export type DefaultPresets = DefaultPreset[]

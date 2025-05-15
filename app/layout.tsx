@@ -3,6 +3,8 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Footer from "@/components/Footer";
+import { ClerkProvider } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -27,15 +29,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${roboto.variable} antialiased flex flex-col h-full min-h-screen`}
-      >
-        <ThemeProvider attribute="class" defaultTheme="system">
-          {children}
-          <Footer />
-        </ThemeProvider>
-      </body>
-    </html>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+        variables: {
+          colorPrimary: "#009689",
+          colorText: "#f1f5f9",
+          colorBackground: "#050c1f",
+        },
+      }}
+    >
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={`${roboto.variable} antialiased flex flex-col h-full min-h-screen`}
+        >
+          <ThemeProvider attribute="class" defaultTheme="system">
+            {children}
+            <Footer />
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

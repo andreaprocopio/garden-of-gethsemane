@@ -13,12 +13,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { defaultPresets } from "@/lib/defaultPresets";
-import { Preset } from "@/lib/types";
+import { Preset } from "@/db/schema";
+import { PresetValues } from "@/lib/types";
 
 const MainControl = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<Preset>(
-    defaultPresets[0].presetValues
+    defaultPresets[0]
   );
 
   const playerRefs = [
@@ -52,6 +53,17 @@ const MainControl = () => {
     setSelectedPreset(parsed);
   };
 
+  const isochronicTonesPresetSettings =
+    selectedPreset.isochronic_tones as PresetValues;
+
+  const brownNoisePresetSettings = selectedPreset.brown_noises as PresetValues;
+
+  const ambienceSoundsPresetSettings =
+    selectedPreset.ambience_sounds as PresetValues;
+
+  const guidedBreathingPresetSettings =
+    selectedPreset.guided_breathing as PresetValues;
+
   return (
     <>
       <Button
@@ -73,10 +85,7 @@ const MainControl = () => {
           </SelectTrigger>
           <SelectContent>
             {defaultPresets.map((preset) => (
-              <SelectItem
-                key={preset.name}
-                value={JSON.stringify(preset.presetValues)}
-              >
+              <SelectItem key={preset.name} value={JSON.stringify(preset)}>
                 {preset.name}
               </SelectItem>
             ))}
@@ -89,33 +98,33 @@ const MainControl = () => {
           ref={playerRefs[0]}
           isPlaying={isPlaying}
           type="isochronic-tones"
-          presetVolume={selectedPreset["isochronic-tones"].volume}
-          presetEnable={selectedPreset["isochronic-tones"].enabled}
-          presetTrack={selectedPreset["isochronic-tones"].trackSrc}
+          presetVolume={isochronicTonesPresetSettings.volume}
+          presetEnable={isochronicTonesPresetSettings.enabled}
+          presetTrack={isochronicTonesPresetSettings.trackSrc}
         />
         <AudioPlayer
           ref={playerRefs[1]}
           isPlaying={isPlaying}
           type="brown-noise"
-          presetVolume={selectedPreset["brown-noise"].volume}
-          presetEnable={selectedPreset["brown-noise"].enabled}
-          presetTrack={selectedPreset["brown-noise"].trackSrc}
+          presetVolume={brownNoisePresetSettings.volume}
+          presetEnable={brownNoisePresetSettings.enabled}
+          presetTrack={brownNoisePresetSettings.trackSrc}
         />
         <AudioPlayer
           ref={playerRefs[2]}
           isPlaying={isPlaying}
           type="ambience-sounds"
-          presetVolume={selectedPreset["ambience-sounds"].volume}
-          presetEnable={selectedPreset["ambience-sounds"].enabled}
-          presetTrack={selectedPreset["ambience-sounds"].trackSrc}
+          presetVolume={ambienceSoundsPresetSettings.volume}
+          presetEnable={ambienceSoundsPresetSettings.enabled}
+          presetTrack={ambienceSoundsPresetSettings.trackSrc}
         />
       </div>
 
       <BreathingPlayer
         ref={breathingPlayerRef}
         isPlaying={isPlaying}
-        presetEnable={selectedPreset["guided-breathing"].enabled}
-        presetVolume={selectedPreset["guided-breathing"].volume}
+        presetEnable={guidedBreathingPresetSettings.enabled}
+        presetVolume={guidedBreathingPresetSettings.volume}
       />
     </>
   );
