@@ -1,6 +1,7 @@
 export type PresetValues = {
   volume: number;
-  enabled: boolean
+  enabled: boolean;
+  trackSrc?: string;
 }
 
 export type Preset = {

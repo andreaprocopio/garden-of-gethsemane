@@ -49,6 +49,7 @@ interface AudioPlayerProps {
   type: "isochronic-tones" | "brown-noise" | "ambience-sounds";
   presetVolume: number;
   presetEnable: boolean;
+  presetTrack?: string;
 }
 
 const audioOptionsMap = {
@@ -64,12 +65,15 @@ const cardTitleMap = {
 } as const;
 
 const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
-  ({ isPlaying, type, presetVolume, presetEnable }, ref) => {
+  ({ isPlaying, type, presetVolume, presetEnable, presetTrack }, ref) => {
     const options = audioOptionsMap[type];
     const cardTitle = cardTitleMap[type];
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [volume, setVolume] = useState(presetVolume);
-    const [src, setSrc] = useState(options[0].value);
+    const [src, setSrc] = useState(() => {
+      const foundOption = options.find((opt) => opt.value === presetTrack);
+      return foundOption ? foundOption.value : options[0].value;
+    });
     const [enabled, setEnabled] = useState(presetEnable);
 
     useImperativeHandle(ref, () => ({
@@ -122,6 +126,10 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
     useEffect(() => {
       setVolume(presetVolume);
     }, [presetVolume]);
+
+    useEffect(() => {
+      setSrc(presetTrack || options[0].value);
+    }, [presetTrack, options]);
 
     useEffect(() => {
       setEnabled(presetEnable);

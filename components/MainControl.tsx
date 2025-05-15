@@ -91,6 +91,7 @@ const MainControl = () => {
           type="isochronic-tones"
           presetVolume={selectedPreset["isochronic-tones"].volume}
           presetEnable={selectedPreset["isochronic-tones"].enabled}
+          presetTrack={selectedPreset["isochronic-tones"].trackSrc}
         />
         <AudioPlayer
           ref={playerRefs[1]}
@@ -98,6 +99,7 @@ const MainControl = () => {
           type="brown-noise"
           presetVolume={selectedPreset["brown-noise"].volume}
           presetEnable={selectedPreset["brown-noise"].enabled}
+          presetTrack={selectedPreset["brown-noise"].trackSrc}
         />
         <AudioPlayer
           ref={playerRefs[2]}
@@ -105,6 +107,7 @@ const MainControl = () => {
           type="ambience-sounds"
           presetVolume={selectedPreset["ambience-sounds"].volume}
           presetEnable={selectedPreset["ambience-sounds"].enabled}
+          presetTrack={selectedPreset["ambience-sounds"].trackSrc}
         />
       </div>
 

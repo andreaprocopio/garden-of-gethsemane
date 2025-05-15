@@ -6,15 +6,18 @@ export const defaultPresets: DefaultPresets = [
     presetValues: {
         "isochronic-tones": {
             volume: 1,
-            enabled: true
+            enabled: true,
+            trackSrc: "/isochronic-10hz.mp3"
         },
         "brown-noise": {
             volume: 0.2,
-            enabled: true
+            enabled: true,
+            trackSrc: "/relaxing-layered-brown-noise.mp3"
         },
         "ambience-sounds": {
             volume: 0.1,
-            enabled: true
+            enabled: true,
+            trackSrc: "/gentle-rain.mp3"
         },
         "guided-breathing": {
             volume: 0.5,
@@ -27,11 +30,13 @@ export const defaultPresets: DefaultPresets = [
     presetValues: {
         "isochronic-tones": {
             volume: 1,
-            enabled: true
+            enabled: true,
+            trackSrc: "/isochronic-8hz.mp3"
         },
         "brown-noise": {
             volume: 0.2,
-            enabled: false
+            enabled: true,
+            trackSrc: "/relaxing-smoothed-brown-noise.mp3"
         },
         "ambience-sounds": {
             volume: 0.1,
