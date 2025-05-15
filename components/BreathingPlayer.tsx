@@ -23,10 +23,12 @@ export type BreathingPlayerHandle = {
 
 interface BreathingPlayerProps {
   isPlaying: boolean;
+  presetVolume: number;
+  presetEnable: boolean;
 }
 
 const BreathingPlayer = forwardRef<BreathingPlayerHandle, BreathingPlayerProps>(
-  ({ isPlaying }, ref) => {
+  ({ isPlaying, presetEnable, presetVolume }, ref) => {
     const [durations, setDurations] = useState<Record<Phase, number>>({
       "breathe-in": 4,
       "hold-in": 4,
@@ -35,9 +37,9 @@ const BreathingPlayer = forwardRef<BreathingPlayerHandle, BreathingPlayerProps>(
     });
 
     const [currentPhase, setCurrentPhase] = useState<Phase | null>(null);
-    const [volume, setVolume] = useState(1);
+    const [volume, setVolume] = useState(presetVolume);
     const volumeRef = useRef(volume);
-    const [enabled, setEnabled] = useState(true);
+    const [enabled, setEnabled] = useState(presetEnable);
 
     const currentAudioRef = useRef<HTMLAudioElement | null>(null);
     const phaseIndexRef = useRef(0);
@@ -141,6 +143,14 @@ const BreathingPlayer = forwardRef<BreathingPlayerHandle, BreathingPlayerProps>(
         pause();
       }
     }, [enabled, isPlaying]);
+
+    useEffect(() => {
+      setVolume(presetVolume);
+    }, [presetVolume]);
+
+    useEffect(() => {
+      setEnabled(presetEnable);
+    }, [presetEnable]);
 
     return (
       <Card

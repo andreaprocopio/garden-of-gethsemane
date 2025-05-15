@@ -47,6 +47,8 @@ const ambienceOptions = [{ label: "Gentle Rain", value: "/gentle-rain.mp3" }];
 interface AudioPlayerProps {
   isPlaying: boolean;
   type: "isochronic-tones" | "brown-noise" | "ambience-sounds";
+  presetVolume: number;
+  presetEnable: boolean;
 }
 
 const audioOptionsMap = {
@@ -62,13 +64,13 @@ const cardTitleMap = {
 } as const;
 
 const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
-  ({ isPlaying, type }, ref) => {
+  ({ isPlaying, type, presetVolume, presetEnable }, ref) => {
     const options = audioOptionsMap[type];
     const cardTitle = cardTitleMap[type];
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const [volume, setVolume] = useState(1);
+    const [volume, setVolume] = useState(presetVolume);
     const [src, setSrc] = useState(options[0].value);
-    const [enabled, setEnabled] = useState(true);
+    const [enabled, setEnabled] = useState(presetEnable);
 
     useImperativeHandle(ref, () => ({
       play: () => {
@@ -103,6 +105,27 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
         audioRef.current?.pause();
       }
     }, [enabled, isPlaying, src]);
+
+    useEffect(() => {
+      if (audioRef.current) {
+        audioRef.current.volume = volume;
+      }
+    }, []);
+
+    // Imposta il volume ogni volta che cambia
+    useEffect(() => {
+      if (audioRef.current) {
+        audioRef.current.volume = volume;
+      }
+    }, [volume]);
+
+    useEffect(() => {
+      setVolume(presetVolume);
+    }, [presetVolume]);
+
+    useEffect(() => {
+      setEnabled(presetEnable);
+    }, [presetEnable]);
 
     return (
       <Card
