@@ -3,6 +3,8 @@
 import React, { useRef, useState } from "react";
 import AudioPlayer, { AudioPlayerHandle } from "./AudioPlayer";
 import BreathingPlayer, { BreathingPlayerHandle } from "./BreathingPlayer";
+import { Button } from "./ui/button";
+import { Play, Pause } from "lucide-react";
 
 const MainControl = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -36,12 +38,13 @@ const MainControl = () => {
   return (
     <>
       {/* ✅ Play button */}
-      <button
+      <Button
         onClick={toggleAllPlayback}
-        className="px-6 py-3 bg-green-600 text-white rounded-lg mb-4"
+        variant="outline"
+        className="rounded-full h-[70px] w-[70px] my-12 cursor-pointer"
       >
-        {isPlaying ? "Pause All" : "Play All"}
-      </button>
+        {isPlaying ? <Pause size={28} /> : <Play size={28} />}
+      </Button>
 
       <div className="flex flex-wrap gap-6 justify-center my-12">
         <AudioPlayer

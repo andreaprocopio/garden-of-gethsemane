@@ -100,6 +100,7 @@ const BreathingPlayer = forwardRef<BreathingPlayerHandle, BreathingPlayerProps>(
 
     const play = () => {
       if (enabled) {
+        pause();
         preloadAudios();
         phaseIndexRef.current = 0;
         playNextPhase();

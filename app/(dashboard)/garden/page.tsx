@@ -4,7 +4,7 @@ import React from "react";
 const GardenPage = () => {
   return (
     <>
-      <div className="grow flex flex-col items-center justify-center pt-20">
+      <div className="grow flex flex-col items-center justify-center py-20">
         <MainControl />
       </div>
     </>
