@@ -20,7 +20,13 @@ export const defaultPresets: Preset[] = [
     },
     guided_breathing: {
         volume: 0.5,
-        enabled: false
+        enabled: false,
+        breathingPhasesValues: {
+            breathe_in: 4,
+            hold_in: 4,
+            breathe_out: 4,
+            hold_out: 4,
+        }
     },
     user_id: "system",
     created_at: new Date("2025-05-15T00:00:00.000Z"),
@@ -36,10 +42,12 @@ export const defaultPresets: Preset[] = [
     brown_noises: {
         volume: 0.2,
         enabled: false,
+        trackSrc: "/relaxing-layered-brown-noise.mp3"
     },
     ambience_sounds: {
         volume: 0.1,
         enabled: false,
+        trackSrc: "/gentle-rain.mp3"
     },
     guided_breathing: {
         volume: 0.5,
@@ -65,10 +73,12 @@ export const defaultPresets: Preset[] = [
     brown_noises: {
         volume: 0.2,
         enabled: false,
+        trackSrc: "/relaxing-layered-brown-noise.mp3"
     },
     ambience_sounds: {
         volume: 0.1,
         enabled: false,
+        trackSrc: "/gentle-rain.mp3"
     },
     guided_breathing: {
         volume: 0.5,

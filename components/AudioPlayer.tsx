@@ -23,6 +23,7 @@ import { PresetValues } from "@/lib/types";
 export type AudioPlayerHandle = {
   play: () => void;
   pause: () => void;
+  getPreset: () => PresetValues;
 };
 
 interface AudioPlayerProps {
@@ -30,6 +31,7 @@ interface AudioPlayerProps {
   isPlaying: boolean;
   type: "isochronic-tones" | "brown-noise" | "ambience-sounds";
   presetProps: PresetValues;
+  isModified: () => void;
 }
 
 const cardTitleMap = {
@@ -44,7 +46,7 @@ const loadPresetTrackOrDefault = (sounds: Sound[], presetTrack?: string) => {
 };
 
 const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
-  ({ sounds, isPlaying, type, presetProps }, ref) => {
+  ({ sounds, isPlaying, type, presetProps, isModified }, ref) => {
     const cardTitle = cardTitleMap[type];
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [preset, setPreset] = useState<PresetValues>({
@@ -60,19 +62,13 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
         }
       },
       pause: () => audioRef.current?.pause(),
+      getPreset: () => preset,
     }));
 
     const handleVolumeChange = (value: number[]) => {
       const newVolume = value[0];
-      setPreset((prev) => {
-        return {
-          ...prev,
-          volume: newVolume,
-        };
-      });
-      if (audioRef.current) {
-        audioRef.current.volume = newVolume;
-      }
+      setPreset((prev) => ({ ...prev, volume: newVolume }));
+      if (audioRef.current) audioRef.current.volume = newVolume;
     };
 
     const handleSrcChange = (value: string) => {
@@ -111,7 +107,10 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
       }
     }, [preset.volume]);
 
+    const isPresetUpdate = useRef(false);
+
     useEffect(() => {
+      isPresetUpdate.current = true;
       setPreset((prev) => {
         return {
           ...prev,
@@ -121,6 +120,23 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
         };
       });
     }, [presetProps, sounds]);
+
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+        return;
+      }
+
+      if (isPresetUpdate.current) {
+        isPresetUpdate.current = false;
+        return;
+      }
+      console.log("calling is modified");
+      isModified();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [preset]);
 
     return (
       <Card
