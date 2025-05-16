@@ -12,6 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { PresetValues } from "@/lib/types";
 
 const PHASES = ["breathe-in", "hold-in", "breathe-out", "hold-out"] as const;
 type Phase = (typeof PHASES)[number];
@@ -23,23 +24,22 @@ export type BreathingPlayerHandle = {
 
 interface BreathingPlayerProps {
   isPlaying: boolean;
-  presetVolume: number;
-  presetEnable: boolean;
+  presetProps: PresetValues;
 }
 
 const BreathingPlayer = forwardRef<BreathingPlayerHandle, BreathingPlayerProps>(
-  ({ isPlaying, presetEnable, presetVolume }, ref) => {
+  ({ isPlaying, presetProps }, ref) => {
     const [durations, setDurations] = useState<Record<Phase, number>>({
-      "breathe-in": 4,
-      "hold-in": 4,
-      "breathe-out": 4,
-      "hold-out": 4,
+      "breathe-in": presetProps.breathingPhasesValues?.breathe_in || 4,
+      "hold-in": presetProps.breathingPhasesValues?.hold_in || 4,
+      "breathe-out": presetProps.breathingPhasesValues?.breathe_out || 4,
+      "hold-out": presetProps.breathingPhasesValues?.hold_out || 4,
     });
 
     const [currentPhase, setCurrentPhase] = useState<Phase | null>(null);
-    const [volume, setVolume] = useState(presetVolume);
+    const [volume, setVolume] = useState(presetProps.volume);
     const volumeRef = useRef(volume);
-    const [enabled, setEnabled] = useState(presetEnable);
+    const [enabled, setEnabled] = useState(presetProps.enabled);
 
     const currentAudioRef = useRef<HTMLAudioElement | null>(null);
     const phaseIndexRef = useRef(0);
@@ -142,15 +142,20 @@ const BreathingPlayer = forwardRef<BreathingPlayerHandle, BreathingPlayerProps>(
       } else {
         pause();
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [enabled, isPlaying]);
 
     useEffect(() => {
-      setVolume(presetVolume);
-    }, [presetVolume]);
+      setVolume(presetProps.volume);
+      setEnabled(presetProps.enabled);
 
-    useEffect(() => {
-      setEnabled(presetEnable);
-    }, [presetEnable]);
+      setDurations({
+        "breathe-in": presetProps.breathingPhasesValues?.breathe_in ?? 4,
+        "hold-in": presetProps.breathingPhasesValues?.hold_in ?? 4,
+        "breathe-out": presetProps.breathingPhasesValues?.breathe_out ?? 4,
+        "hold-out": presetProps.breathingPhasesValues?.hold_out ?? 4,
+      });
+    }, [presetProps]);
 
     return (
       <Card

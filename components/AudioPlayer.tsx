@@ -1,4 +1,3 @@
-// app/AudioPlayer.tsx
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { Sound } from "@/db/schema";
 import {
   useRef,
   useState,
@@ -18,45 +18,19 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
+import { PresetValues } from "@/lib/types";
 
 export type AudioPlayerHandle = {
   play: () => void;
   pause: () => void;
 };
 
-const isochronicTonesOptions = [
-  { label: "8 HZ", value: "/isochronic-8hz.mp3" },
-  { label: "10 HZ", value: "/isochronic-10hz.mp3" },
-  { label: "40 HZ", value: "/isochronic-40hz.mp3" },
-];
-
-const brownNoiseOptions = [
-  { label: "Soft brow noise", value: "/soft-brown-noise.mp3" },
-  {
-    label: "Relaxing layered brown noise",
-    value: "/relaxing-layered-brown-noise.mp3",
-  },
-  {
-    label: "Relaxing smoothed brow noise",
-    value: "/relaxing-smoothed-brown-noise.mp3",
-  },
-];
-
-const ambienceOptions = [{ label: "Gentle Rain", value: "/gentle-rain.mp3" }];
-
 interface AudioPlayerProps {
+  sounds: Sound[];
   isPlaying: boolean;
   type: "isochronic-tones" | "brown-noise" | "ambience-sounds";
-  presetVolume: number;
-  presetEnable: boolean;
-  presetTrack?: string;
+  presetProps: PresetValues;
 }
-
-const audioOptionsMap = {
-  "isochronic-tones": isochronicTonesOptions,
-  "brown-noise": brownNoiseOptions,
-  "ambience-sounds": ambienceOptions,
-} as const;
 
 const cardTitleMap = {
   "isochronic-tones": "Isochronic tones",
@@ -64,21 +38,24 @@ const cardTitleMap = {
   "ambience-sounds": "Ambience sounds",
 } as const;
 
+const loadPresetTrackOrDefault = (sounds: Sound[], presetTrack?: string) => {
+  const foundOption = sounds.find((sound) => sound.src === presetTrack);
+  return foundOption ? foundOption.src : sounds[0].src;
+};
+
 const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
-  ({ isPlaying, type, presetVolume, presetEnable, presetTrack }, ref) => {
-    const options = audioOptionsMap[type];
+  ({ sounds, isPlaying, type, presetProps }, ref) => {
     const cardTitle = cardTitleMap[type];
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const [volume, setVolume] = useState(presetVolume);
-    const [src, setSrc] = useState(() => {
-      const foundOption = options.find((opt) => opt.value === presetTrack);
-      return foundOption ? foundOption.value : options[0].value;
+    const [preset, setPreset] = useState<PresetValues>({
+      volume: presetProps.volume,
+      enabled: presetProps.enabled,
+      trackSrc: loadPresetTrackOrDefault(sounds, presetProps.trackSrc),
     });
-    const [enabled, setEnabled] = useState(presetEnable);
 
     useImperativeHandle(ref, () => ({
       play: () => {
-        if (enabled) {
+        if (preset.enabled) {
           audioRef.current?.play();
         }
       },
@@ -87,14 +64,24 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
 
     const handleVolumeChange = (value: number[]) => {
       const newVolume = value[0];
-      setVolume(newVolume);
+      setPreset((prev) => {
+        return {
+          ...prev,
+          volume: newVolume,
+        };
+      });
       if (audioRef.current) {
         audioRef.current.volume = newVolume;
       }
     };
 
     const handleSrcChange = (value: string) => {
-      setSrc(value);
+      setPreset((prev) => {
+        return {
+          ...prev,
+          trackSrc: value,
+        };
+      });
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.load(); // Reload new source
@@ -103,63 +90,70 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
 
     // Play audio if enabled and isPlaying becomes true
     useEffect(() => {
-      if (enabled && isPlaying && src) {
+      if (preset.enabled && isPlaying && preset.trackSrc) {
         audioRef.current?.play();
       } else {
         audioRef.current?.pause();
       }
-    }, [enabled, isPlaying, src]);
+    }, [preset.enabled, isPlaying, preset.trackSrc]);
 
     useEffect(() => {
       if (audioRef.current) {
-        audioRef.current.volume = volume;
+        audioRef.current.volume = preset.volume;
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Imposta il volume ogni volta che cambia
     useEffect(() => {
       if (audioRef.current) {
-        audioRef.current.volume = volume;
+        audioRef.current.volume = preset.volume;
       }
-    }, [volume]);
+    }, [preset.volume]);
 
     useEffect(() => {
-      setVolume(presetVolume);
-    }, [presetVolume]);
-
-    useEffect(() => {
-      setSrc(presetTrack || options[0].value);
-    }, [presetTrack, options]);
-
-    useEffect(() => {
-      setEnabled(presetEnable);
-    }, [presetEnable]);
+      setPreset((prev) => {
+        return {
+          ...prev,
+          enabled: presetProps.enabled,
+          trackSrc: presetProps.trackSrc || sounds[0].src,
+          volume: presetProps.volume,
+        };
+      });
+    }, [presetProps, sounds]);
 
     return (
       <Card
         className={`block shrink-0 min-w-xs md:min-w-md transition-opacity duration-300 ${
-          enabled ? "" : "opacity-50"
+          preset.enabled ? "" : "opacity-50"
         }`}
       >
         <CardHeader className="flex items-center justify-between mb-6">
           <CardTitle>{cardTitle}</CardTitle>
           <Switch
-            checked={enabled}
-            onCheckedChange={setEnabled}
+            checked={preset.enabled}
+            onCheckedChange={() => {
+              setPreset((prev) => {
+                return {
+                  ...prev,
+                  enabled: !prev.enabled,
+                };
+              });
+            }}
             className="cursor-pointer"
           />
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <label className="text-sm mb-1 block">Tracks</label>
-            <Select value={src} onValueChange={handleSrcChange}>
+            <Select value={preset.trackSrc} onValueChange={handleSrcChange}>
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {options.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                {sounds.map((sound) => (
+                  <SelectItem key={sound.src} value={sound.src}>
+                    {sound.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -169,7 +163,7 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
           <div>
             <label className="text-sm mb-1 block">Volume</label>
             <Slider
-              value={[volume]}
+              value={[preset.volume]}
               min={0}
               max={1}
               step={0.01}
@@ -178,7 +172,7 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
             />
           </div>
 
-          <audio ref={audioRef} src={src} loop />
+          <audio ref={audioRef} src={preset.trackSrc} loop />
         </CardContent>
       </Card>
     );

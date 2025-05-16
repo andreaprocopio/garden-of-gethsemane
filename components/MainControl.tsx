@@ -13,10 +13,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { defaultPresets } from "@/lib/defaultPresets";
-import { Preset } from "@/db/schema";
+import { Preset, Sound } from "@/db/schema";
 import { PresetValues } from "@/lib/types";
 
-const MainControl = () => {
+interface MainControlProps {
+  isochronicTones: Sound[];
+  brownNoises: Sound[];
+  ambienceSounds: Sound[];
+}
+
+const MainControl = ({
+  isochronicTones,
+  brownNoises,
+  ambienceSounds,
+}: MainControlProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<Preset>(
     defaultPresets[0]
@@ -53,16 +63,13 @@ const MainControl = () => {
     setSelectedPreset(parsed);
   };
 
-  const isochronicTonesPresetSettings =
-    selectedPreset.isochronic_tones as PresetValues;
+  const isochronicTonesPreset = selectedPreset.isochronic_tones as PresetValues;
 
-  const brownNoisePresetSettings = selectedPreset.brown_noises as PresetValues;
+  const brownNoisePreset = selectedPreset.brown_noises as PresetValues;
 
-  const ambienceSoundsPresetSettings =
-    selectedPreset.ambience_sounds as PresetValues;
+  const ambienceSoundsPreset = selectedPreset.ambience_sounds as PresetValues;
 
-  const guidedBreathingPresetSettings =
-    selectedPreset.guided_breathing as PresetValues;
+  const guidedBreathingPreset = selectedPreset.guided_breathing as PresetValues;
 
   return (
     <>
@@ -95,36 +102,32 @@ const MainControl = () => {
 
       <div className="flex flex-wrap gap-6 justify-center my-12">
         <AudioPlayer
+          sounds={isochronicTones}
           ref={playerRefs[0]}
           isPlaying={isPlaying}
           type="isochronic-tones"
-          presetVolume={isochronicTonesPresetSettings.volume}
-          presetEnable={isochronicTonesPresetSettings.enabled}
-          presetTrack={isochronicTonesPresetSettings.trackSrc}
+          presetProps={isochronicTonesPreset}
         />
         <AudioPlayer
+          sounds={brownNoises}
           ref={playerRefs[1]}
           isPlaying={isPlaying}
           type="brown-noise"
-          presetVolume={brownNoisePresetSettings.volume}
-          presetEnable={brownNoisePresetSettings.enabled}
-          presetTrack={brownNoisePresetSettings.trackSrc}
+          presetProps={brownNoisePreset}
         />
         <AudioPlayer
+          sounds={ambienceSounds}
           ref={playerRefs[2]}
           isPlaying={isPlaying}
           type="ambience-sounds"
-          presetVolume={ambienceSoundsPresetSettings.volume}
-          presetEnable={ambienceSoundsPresetSettings.enabled}
-          presetTrack={ambienceSoundsPresetSettings.trackSrc}
+          presetProps={ambienceSoundsPreset}
         />
       </div>
 
       <BreathingPlayer
         ref={breathingPlayerRef}
         isPlaying={isPlaying}
-        presetEnable={guidedBreathingPresetSettings.enabled}
-        presetVolume={guidedBreathingPresetSettings.volume}
+        presetProps={guidedBreathingPreset}
       />
     </>
   );
