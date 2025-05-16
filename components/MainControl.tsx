@@ -16,6 +16,7 @@ import { defaultPresets } from "@/lib/defaultPresets";
 import { Preset, Sound } from "@/db/schema";
 import { PresetValues } from "@/lib/types";
 import _ from "lodash";
+import SavePresetButton from "./SavePresetButton";
 
 interface MainControlProps {
   isochronicTones: Sound[];
@@ -67,18 +68,6 @@ const MainControl = ({
     setSelectedPreset(parsed);
   };
 
-  const handleSavePreset = () => {
-    const updatedPreset: Preset = {
-      ...selectedPreset,
-      isochronic_tones: playerRefs[0].current?.getPreset(),
-      brown_noises: playerRefs[1].current?.getPreset(),
-      ambience_sounds: playerRefs[2].current?.getPreset(),
-      guided_breathing: breathingPlayerRef.current?.getPreset(),
-    };
-
-    setSelectedPreset(updatedPreset);
-  };
-
   const isModified = () => {
     const ref0 = playerRefs[0].current;
     const ref1 = playerRefs[1].current;
@@ -91,11 +80,6 @@ const MainControl = ({
     const currentBrown = ref1.getPreset?.();
     const currentAmbience = ref2.getPreset?.();
     const currentBreathing = breathing.getPreset?.();
-
-    console.log(_.isEqual(currentIsochronic, selectedPreset.isochronic_tones));
-    console.log(_.isEqual(currentBrown, selectedPreset.brown_noises));
-    console.log(_.isEqual(currentAmbience, selectedPreset.ambience_sounds));
-    console.log(_.isEqual(currentBreathing, selectedPreset.guided_breathing));
 
     return !(
       _.isEqual(currentIsochronic, selectedPreset.isochronic_tones) &&
@@ -144,9 +128,15 @@ const MainControl = ({
       </div>
 
       {modified && (
-        <Button onClick={handleSavePreset} className="mt-4">
-          Salva preset modificato
-        </Button>
+        <SavePresetButton
+          playerRefs={playerRefs}
+          breathingRef={breathingPlayerRef}
+          selectedPreset={selectedPreset}
+          onSaved={(updated) => {
+            setSelectedPreset(updated);
+            setModified(false);
+          }}
+        />
       )}
 
       <div className="flex flex-wrap gap-6 justify-center my-12">

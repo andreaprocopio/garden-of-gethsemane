@@ -186,7 +186,6 @@ const BreathingPlayer = forwardRef<BreathingPlayerHandle, BreathingPlayerProps>(
         return;
       }
 
-      console.log("calling is modified");
       isModified();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [preset]);
