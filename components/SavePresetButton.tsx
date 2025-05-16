@@ -75,7 +75,7 @@ const SavePresetButton: React.FC<SavePresetButtonProps> = ({
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className="my-4">
         <Button>Save as new preset</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

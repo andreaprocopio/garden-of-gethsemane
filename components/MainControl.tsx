@@ -3,17 +3,20 @@
 import React, { useRef, useState } from "react";
 import AudioPlayer, { AudioPlayerHandle } from "./AudioPlayer";
 import BreathingPlayer, { BreathingPlayerHandle } from "./BreathingPlayer";
+import DeletePresetButton from "./DeletePresetButton";
 import { Button } from "./ui/button";
 import { Play, Pause } from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { defaultPresets } from "@/lib/defaultPresets";
 import { Preset, Sound } from "@/db/schema";
+
 import { PresetValues } from "@/lib/types";
 import _ from "lodash";
 import SavePresetButton from "./SavePresetButton";
@@ -22,12 +25,14 @@ interface MainControlProps {
   isochronicTones: Sound[];
   brownNoises: Sound[];
   ambienceSounds: Sound[];
+  userPresets: Preset[];
 }
 
 const MainControl = ({
   isochronicTones,
   brownNoises,
   ambienceSounds,
+  userPresets,
 }: MainControlProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<Preset>(
@@ -118,6 +123,23 @@ const MainControl = ({
             <SelectValue placeholder="Select a preset" />
           </SelectTrigger>
           <SelectContent>
+            {/* User presets */}
+            {userPresets.map((preset) => (
+              <div
+                className="flex items-center justify-between"
+                key={preset.id}
+              >
+                <SelectItem value={JSON.stringify(preset)}>
+                  {preset.name}
+                </SelectItem>
+                <DeletePresetButton presetId={preset.id} />
+              </div>
+            ))}
+            {/* Separator (opzionale) */}
+            {userPresets.length > 0 && defaultPresets.length > 0 && (
+              <SelectSeparator />
+            )}
+            {/* Default presets */}
             {defaultPresets.map((preset) => (
               <SelectItem key={preset.name} value={JSON.stringify(preset)}>
                 {preset.name}
