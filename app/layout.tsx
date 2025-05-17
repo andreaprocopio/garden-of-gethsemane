@@ -44,7 +44,7 @@ export default function RootLayout({
         <body
           className={`${roboto.variable} antialiased flex flex-col h-full min-h-screen`}
         >
-          <ThemeProvider attribute="class" defaultTheme="system">
+          <ThemeProvider attribute="class" defaultTheme="dark">
             {children}
             <Footer />
             <Toaster />
