@@ -1,14 +1,7 @@
 "use client";
 import React from "react";
 import { FloatingNav } from "@/components/ui/floating-navbar";
-import {
-  ArrowUpToLine,
-  Leaf,
-  CircleHelp,
-  Settings2,
-  LibraryBig,
-  Undo2,
-} from "lucide-react";
+import { ArrowUpToLine, Leaf, LibraryBig, Undo2 } from "lucide-react";
 
 interface FloatingNavbarProps {
   isLoggedIn: boolean;
@@ -30,22 +23,8 @@ export function FloatingNavbar({ isLoggedIn, isLanding }: FloatingNavbarProps) {
           link: "#features",
           icon: <Leaf className="h-4 w-4 text-neutral-500 dark:text-white" />,
         },
-        {
-          name: "Tutorial",
-          link: "#tutorial",
-          icon: (
-            <CircleHelp className="h-4 w-4 text-neutral-500 dark:text-white" />
-          ),
-        },
       ]
     : [
-        {
-          name: "Templates",
-          link: "/templates",
-          icon: (
-            <Settings2 className="h-4 w-4 text-neutral-500 dark:text-white" />
-          ),
-        },
         {
           name: "Guides",
           link: "/guides",
@@ -54,7 +33,7 @@ export function FloatingNavbar({ isLoggedIn, isLanding }: FloatingNavbarProps) {
           ),
         },
         {
-          name: "Landing",
+          name: "About",
           link: "/?noRedirect=true",
           icon: <Undo2 className="h-4 w-4 text-neutral-500 dark:text-white" />,
         },

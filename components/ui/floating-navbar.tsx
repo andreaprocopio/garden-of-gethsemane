@@ -6,6 +6,7 @@ import ColoredBorderButton from "../ColoredBorderButton";
 import Link from "next/link";
 import Image from "next/image";
 import { useMediaQuery } from "react-responsive";
+import { SignedIn, UserButton } from "@clerk/nextjs";
 
 export const FloatingNav = ({
   navItems,
@@ -61,10 +62,16 @@ export const FloatingNav = ({
       </>
     );
 
+  const userButton = isLoggedIn ? (
+    <SignedIn>
+      <UserButton />
+    </SignedIn>
+  ) : null;
+
   return (
     <div
       className={cn(
-        "fixed top-10 inset-x-0 mx-auto z-[5000] flex items-center justify-center",
+        "fixed top-10 inset-x-0 mx-auto z-[5000] flex items-center justify-center gap-4",
         className
       )}
       ref={navRef}
@@ -124,6 +131,7 @@ export const FloatingNav = ({
           </motion.div>
         )}
       </motion.div>
+      {userButton}
     </div>
   );
 };
