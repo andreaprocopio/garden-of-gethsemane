@@ -146,6 +146,12 @@ const BreathingPlayer = forwardRef<BreathingPlayerHandle, BreathingPlayerProps>(
     };
 
     useEffect(() => {
+      return () => {
+        pause();
+      };
+    }, []);
+
+    useEffect(() => {
       if (preset.enabled && isPlaying) {
         play();
       } else {

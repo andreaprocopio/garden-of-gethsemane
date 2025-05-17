@@ -8,7 +8,7 @@ import {
 
 const Guides = () => {
   return (
-    <div className="py-20 px-4 w-full flex justify-center">
+    <div className="py-32 px-4 w-full flex justify-center">
       <Accordion type="multiple" className="w-full max-w-2xl space-y-4">
         <AccordionItem
           value="item-1"
